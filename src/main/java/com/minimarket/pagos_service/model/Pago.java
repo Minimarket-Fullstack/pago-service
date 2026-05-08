@@ -29,11 +29,15 @@ public class Pago {
     private Double monto;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private MetodoPago metodo_pago;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private EstadoPago estado;
 
+
+    // esto lo dejaría como numero de pedido
     private String referencia;
 
     private boolean activo = true;
