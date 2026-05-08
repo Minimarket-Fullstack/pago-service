@@ -18,7 +18,17 @@ public class PagoService {
 
     private final PagoRepository pagoRepository;
 
-    public PagoResponseDTO mapToDto(Pago pago){
+    // id, compraid, ventaid, , fechaPago, metodoPago, monto, estado, referencia
+    private  PagoResponseDTO mapToDto(Pago pago){
+        return new PagoResponseDTO(
+                pago.getId(),
+                pago.getCompraId(),
+                pago.getVentaId(),
+                pago.getFechaPago(),
+                pago.getMetodoPago().name(),
+                pago.getMonto(),
+                pago.getEstado().name(),
+                pago.getReferencia());
 
     }
 
