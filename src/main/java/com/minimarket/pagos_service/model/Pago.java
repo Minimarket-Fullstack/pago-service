@@ -1,14 +1,9 @@
 package com.minimarket.pagos_service.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import tools.jackson.databind.annotation.JsonDeserialize;
-import tools.jackson.databind.annotation.JsonSerialize;
-import tools.jackson.databind.ext.javatime.deser.LocalDateTimeDeserializer;
-import tools.jackson.databind.ext.javatime.ser.LocalDateTimeSerializer;
 
 import java.time.LocalDateTime;
 

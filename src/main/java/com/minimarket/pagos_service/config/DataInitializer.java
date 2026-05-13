@@ -28,17 +28,13 @@ public class DataInitializer implements CommandLineRunner {
             return;
         }
 
-        Pago pago1 = new Pago(
-                null,
-                1L,
-                1L,
-                LocalDateTime.now(),
-                15990.0,
-                MetodoPago.TARJETA,
-                EstadoPago.PAGADO,
-                "PED-847291",
-                true
+        log.info(
+                ">>> DataInitializer: BD vacía detectada, insertando datos de prueba..."
         );
+
+        //Como voy a hacer q se conecte con compra y ventas? estes se conecta con varios y compraid y ventaid tambien se conectan con este y también
+
+        Pago pago1 = new Pago(null,1L,1L,LocalDateTime.now(),15990.0,MetodoPago.TARJETA,EstadoPago.PAGADO,"PED-847291",true);
 
         pagoRepository.save(pago1);
 
@@ -98,9 +94,6 @@ public class DataInitializer implements CommandLineRunner {
 
         pagoRepository.save(pago5);
 
-        log.info(
-                ">>> DataInitializer: BD vacía detectada, insertando datos de prueba..."
-        );
 
         //LocalDateTime.now().minusDays(12);
 
