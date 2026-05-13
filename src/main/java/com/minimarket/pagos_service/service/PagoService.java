@@ -34,6 +34,7 @@ public class PagoService {
 
     public List<PagoResponseDTO> obtenerTodos(){
         return pagoRepository.findByActivoTrue().stream().map(this::mapToDto).collect(Collectors.toList());
+
     }
 
 
