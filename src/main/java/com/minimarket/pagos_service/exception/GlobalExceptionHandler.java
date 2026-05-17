@@ -1,6 +1,5 @@
 package com.minimarket.pagos_service.exception;
 
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -16,22 +15,30 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(PagoNotFoundException.class)
+    public ResponseEntity<Map<String,String>> handlePagoNotFound(PagoNotFoundException pex){
+        log.warn("PAGO NO ENCONTRADO: {}", pex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("ERROR", "PAGO NO ENCONTRADO", "DETALLES", pex.getMessage()));
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, String>> handleDuplicado(DataIntegrityViolationException ex) {
+        log.error("RESTRICCIÓN DE CONSTRAINT: {}",ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(Map.of("error", "Ya existe un registro con esos datos"));
+                .body(Map.of("ERROR", "YA EXISTE UN REGISTRO CON ESOS DATOS"));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String,String>> handleValidationErrors(MethodArgumentNotValidException ex){
         Map<String, String> errores = new LinkedHashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error -> errores.put(error.getField(),error.getDefaultMessage()));
+        log.warn("[VALIDACIÓN] PETICION RECHAZADA. CAMPOS CON ERRORES: {}", errores);
         return ResponseEntity.badRequest().body(errores);
     }
 
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGeneric(Exception ex){
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error interno en el servidor"));
+        log.error("ERROR INESPERADO", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("ERROR", "ERROR INTERNO EN EL SERVIDOR"));
     }
 }

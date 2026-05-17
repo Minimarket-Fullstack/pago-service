@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Pago {
-
+//id, vcompraId,ventaid,fecha,monto,metodopago,estado,,referneica,activo
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,8 +28,6 @@ public class Pago {
     @Column(nullable = false)
     private Double monto;
 
-
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MetodoPago metodoPago;
@@ -38,9 +36,8 @@ public class Pago {
     @Column(nullable = false)
     private EstadoPago estado;
 
-
     // esto lo dejaría como numero de pedido
-    private String referencia;
+    private String referencia; // me gustaría q esto se generará solo
 
-    private boolean activo = true;
+    private boolean activo = true; // este es el borrado lógico q tengo en los otros microservicios fomes.
 }

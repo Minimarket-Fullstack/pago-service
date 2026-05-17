@@ -13,16 +13,12 @@ import java.time.LocalDateTime;
 
 public class PagoResponseDTO {
 
-
-
     // id, compraid, ventaid, referencia, fechaPago, metodoPago, monto, estado
-    private Long id; // esto no contaría como numero de pedido?
+    private Long id; // esto no contaría como numero de pedido? no, pq eso esta en la referencia
 
     private Long compraId;
 
     private Long ventaId;
-
-
         // pero si retorno la fecha po
     private LocalDateTime fechaPago;
 
