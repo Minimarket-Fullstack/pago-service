@@ -37,6 +37,7 @@ public class Pago {
     private EstadoPago estado;
 
     // esto lo dejaría como numero de pedido
+    @Column(unique = true)  //para q no salgan duplicados
     private String referencia; // me gustaría q esto se generará solo
 
     private boolean activo = true; // este es el borrado lógico q tengo en los otros microservicios fomes.

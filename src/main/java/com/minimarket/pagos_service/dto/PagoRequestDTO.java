@@ -27,8 +27,6 @@ public class PagoRequestDTO {
     @NotNull(message = "EL MÉTODO DE PAGO ES OBLIGATORIO")
     private String metodo;
 
-    private String referencia;
-
     // El estado siemper q guardo un pedido y se paga??? el estadodlo dejo como pendiente siempre?
 //    private String estado;
 }

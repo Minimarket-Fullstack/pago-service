@@ -2,6 +2,7 @@ package com.minimarket.pagos_service.service;
 
 import com.minimarket.pagos_service.client.CompraClient;
 import com.minimarket.pagos_service.client.VentaClient;
+import com.minimarket.pagos_service.dto.CompraResponseDTO;
 import com.minimarket.pagos_service.dto.PagoRequestDTO;
 import com.minimarket.pagos_service.dto.PagoResponseDTO;
 import com.minimarket.pagos_service.exception.CompraNotFoundException;
@@ -15,9 +16,9 @@ import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -79,16 +80,33 @@ public class PagoService {
 
         validarCompraId(dto.getCompraId());
 
+        validarVentaId(dto.getVentaId());
         // como hago para q no quede en pendietne siempre po
         //probando el operador ternario podría haberlo hecho con un swithc igual
-          EstadoPago estado =
-                dto.getMetodo().equalsIgnoreCase("efectivo")
-                        || dto.getMetodo().equalsIgnoreCase("tarjeta")
-                        || dto.getMetodo().equalsIgnoreCase("transferencia")
-                        ? EstadoPago.PAGADO //if
-                        : EstadoPago.PENDIENTE; //else
+//          EstadoPago estado =
+//                dto.getMetodo().equalsIgnoreCase("efectivo")
+//                        || dto.getMetodo().equalsIgnoreCase("tarjeta")
+//                        || dto.getMetodo().equalsIgnoreCase("transferencia")
+//                        ? EstadoPago.PAGADO //if
+//                        : EstadoPago.PENDIENTE; //else
 
-        String referencia = "PED-" + ((int) (Math.random() * 900000) + 100000);
+        //con un switch mejor
+        EstadoPago estado = switch (dto.getMetodo().toUpperCase()){
+            case "EFECTIVO", "TARJETA", "TRANSFERENCIA" -> EstadoPago.PAGADO;
+            default -> throw new IllegalArgumentException("MÉTODO DE PAGO NO VÁLIDO: " +dto.getMetodo());
+        };
+
+        String referencia;
+        do{
+
+        referencia = "PED-" + ((int) (Math.random() * 900000) + 100000);
+        } while(pagoRepository.existsByReferencia(referencia));
+
+        //mucho texto
+        CompraResponseDTO compra = compraClient.obtenerPorId(dto.getCompraId());
+        if(!compra.getEstado().equals("PENDIENTE")){
+            throw new IllegalArgumentException("LA COMPRA NO ESTÁ EN ESTADO PENDIENTE");
+        }
 
         //que manera
         Pago pago = new Pago(null, dto.getCompraId(),dto.getVentaId(), LocalDateTime.now(),dto.getMonto(), MetodoPago.valueOf(dto.getMetodo().toUpperCase()), estado, referencia,true);
@@ -103,9 +121,6 @@ public class PagoService {
     //eliminar
     public void eliminarPago(Long id) {
         Pago pago = pagoRepository.findByIdAndActivoTrue(id).orElseThrow(() -> new PagoNotFoundException(id));
-        if(!pago.isActivo()){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "EL PAGO YA SE ENCUENTRA ELIMINADO");
-        }
         pago.setActivo(false);
         pagoRepository.save(pago);
         log.info("PAGO ELIMINADO EXITOSAMENTE");

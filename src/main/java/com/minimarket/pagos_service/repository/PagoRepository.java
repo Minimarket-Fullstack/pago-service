@@ -12,6 +12,8 @@ public interface PagoRepository extends JpaRepository<Pago, Long> {
 
     Optional<Pago> findByIdAndActivoTrue(Long id);
 
+    boolean existsByReferencia(String referencia);
+
 
 
 
