@@ -17,10 +17,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CompraNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleCompraNoEncontrada(CompraNotFoundException ex) {
+        log.warn("COMPRA NO ENCONTRADA: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("ERROR", ex.getMessage()));
+    }
+
+    @ExceptionHandler(VentaNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleVentaNoEncontrada(VentaNotFoundException ex) {
         log.warn(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("ERROR", ex.getMessage()));
     }
+
+
 
     @ExceptionHandler(PagoNotFoundException.class)
     public ResponseEntity<Map<String,String>> handlePagoNotFound(PagoNotFoundException pex){

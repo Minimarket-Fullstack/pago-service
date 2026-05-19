@@ -31,6 +31,7 @@ public class DataInitializer implements CommandLineRunner {
 
         //Como voy a hacer q se conecte con compra y ventas? estes se conecta con varios y compraid y ventaid tambien se conectan con este y también
 
+        //pagoRepository.save(new Pago());
         Pago pago1 = new Pago(null,
                 1L,
                 1L,LocalDateTime.now(),

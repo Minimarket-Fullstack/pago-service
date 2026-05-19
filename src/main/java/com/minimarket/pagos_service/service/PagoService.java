@@ -1,11 +1,12 @@
 package com.minimarket.pagos_service.service;
 
-
 import com.minimarket.pagos_service.client.CompraClient;
+import com.minimarket.pagos_service.client.VentaClient;
 import com.minimarket.pagos_service.dto.PagoRequestDTO;
 import com.minimarket.pagos_service.dto.PagoResponseDTO;
 import com.minimarket.pagos_service.exception.CompraNotFoundException;
 import com.minimarket.pagos_service.exception.PagoNotFoundException;
+import com.minimarket.pagos_service.exception.VentaNotFoundException;
 import com.minimarket.pagos_service.model.EstadoPago;
 import com.minimarket.pagos_service.model.MetodoPago;
 import com.minimarket.pagos_service.model.Pago;
@@ -20,7 +21,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +31,7 @@ public class PagoService {
 
     private final PagoRepository pagoRepository;
     private final CompraClient compraClient;
+    private final VentaClient ventaClient;
 
     // id, compraid, ventaid, , fechaPago, metodoPago, monto, estado, referencia
     private  PagoResponseDTO mapToDto(Pago pago){
@@ -44,6 +45,17 @@ public class PagoService {
                 pago.getEstado().name(),
                 pago.getReferencia());
 
+    }
+
+    private void validarVentaId(Long ventaid){
+        try{
+            ventaClient.obtenerPorId(ventaid);
+            log.info("LA VENTA CON EL ID {} HA SIDO VALIDADA CORRECTAMENTE", ventaid);
+        } catch (FeignException.NotFound e){
+            throw new VentaNotFoundException(ventaid);
+        } catch (Exception e){
+            throw new RuntimeException("NO SE PUDO CONECTAR CON EL VENTA-SERVICE: " + e.getMessage());
+        }
     }
 
     private void validarCompraId(Long compraId){
@@ -60,7 +72,7 @@ public class PagoService {
     public List<PagoResponseDTO> obtenerTodos(){
         return pagoRepository.findByActivoTrue().stream().map(this::mapToDto).collect(Collectors.toList());
     }
-//id, vcompraId,ventaid,fecha,monto,metodopago,estado,,referneica,activo
+    //id, vcompraId,ventaid,fecha,monto,metodopago,estado,,referneica,activo
 
     //método para guardar
     public PagoResponseDTO guardarPago(PagoRequestDTO dto){
@@ -75,7 +87,6 @@ public class PagoService {
                         || dto.getMetodo().equalsIgnoreCase("transferencia")
                         ? EstadoPago.PAGADO //if
                         : EstadoPago.PENDIENTE; //else
-
 
         String referencia = "PED-" + ((int) (Math.random() * 900000) + 100000);
 
