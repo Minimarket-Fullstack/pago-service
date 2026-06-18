@@ -1,0 +1,73 @@
+package com.minimarket.pagos_service.exception;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+@Slf4j
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(CompraNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleCompraNoEncontrada(CompraNotFoundException ex) {
+        log.warn("COMPRA NO ENCONTRADA: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("ERROR", ex.getMessage()));
+    }
+
+    @ExceptionHandler(VentaNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleVentaNoEncontrada(VentaNotFoundException ex) {
+        log.warn("VENTA NO ENCONTRADA. " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("ERROR", ex.getMessage()));
+    }
+
+    @ExceptionHandler(PagoNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handlePagoNotFound(PagoNotFoundException pex) {
+        log.warn("PAGO NO ENCONTRADO: {}", pex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("ERROR", "PAGO NO ENCONTRADO", "DETALLES", pex.getMessage()));
+    }
+
+
+    //posiblemente, después de presentar
+//    @ExceptionHandler(IllegalArgumentException.class)
+//    public ResponseEntity<Map<String, String>> handleIllegalArgumento(IllegalArgumentException exxx){
+//        log.warn("ARGUMENTO NO VÁLIDO: {}", exxx.getMessage());
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("ERROR", exxx.getMessage()));
+//    }
+
+
+//    @ExceptionHandler(IllegalStateException.class)
+//    public ResponseEntity<Map<String,String>> handleIllegalState(IllegalStateException exception){
+//        log.warn("ESTADO INVÁLIDO: {}", exception.getMessage());
+//        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("ERROR", exception.getMessage()));
+//    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicado(DataIntegrityViolationException ex) {
+        log.error("RESTRICCIÓN DE CONSTRAINT: {}",ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("ERROR", "YA EXISTE UN REGISTRO CON ESOS DATOS"));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String,String>> handleValidationErrors(MethodArgumentNotValidException ex){
+        Map<String, String> errores = new LinkedHashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error -> errores.put(error.getField(),error.getDefaultMessage()));
+        log.warn("[VALIDACIÓN] PETICION RECHAZADA. CAMPOS CON ERRORES: {}", errores);
+        return ResponseEntity.badRequest().body(errores);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleGeneric(Exception ex){
+        log.error("ERROR INESPERADO", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("ERROR", "ERROR INTERNO EN EL SERVIDOR"));
+    }
+}
